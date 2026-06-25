@@ -147,7 +147,7 @@ export default function Home() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Map Section */}
-        <div className="flex-1 min-h-[40vh] md:min-h-full relative">
+        <div className="flex-1 min-h-[35vh] md:min-h-full relative">
           {loading ? (
             <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
               <p className="text-gray-600 text-lg">Cargando mapa...</p>
@@ -163,25 +163,17 @@ export default function Home() {
         </div>
 
         {/* Sidebar */}
-        <div className="w-full md:w-96 bg-white shadow-lg overflow-y-auto">
+        <div className="w-full md:w-96 bg-white shadow-lg overflow-y-auto md:overflow-hidden md:flex md:flex-col">
           {showForm ? (
-            <>
-              <div className="p-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
-                <h2 className="text-xl font-bold">Nuevo Reporte</h2>
-                <button
-                  onClick={() => setShowForm(false)}
-                  className="text-2xl font-bold text-gray-500"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="p-4">
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end md:items-center justify-center p-0 md:p-4">
+              <div className="w-full md:max-w-lg md:rounded-lg bg-white h-full md:h-auto md:max-h-[90vh] flex flex-col overflow-hidden">
                 <ReportForm
                   onSuccess={handleReportSuccess}
                   onError={handleReportError}
+                  onClose={() => setShowForm(false)}
                 />
               </div>
-            </>
+            </div>
           ) : showMatches ? (
             <>
               <div className="p-4 border-b sticky top-0 bg-white z-10">
@@ -301,72 +293,71 @@ export default function Home() {
             </>
           ) : (
             <>
-              {/* Search & Buttons */}
-              <div className="p-4 space-y-3 sticky top-0 bg-white z-10">
-                <h2 className="text-lg font-bold text-gray-800 mb-3">
-                  Total de reportes: {reports.length}
-                </h2>
+              {/* Buttons & Search */}
+              <div className="sticky top-0 bg-white z-10 border-b border-gray-200">
+                {/* Main Action */}
+                <div className="p-4 pb-3">
+                  <button
+                    onClick={() => setShowForm(true)}
+                    className="w-full bg-green-600 text-white py-6 rounded-lg font-bold text-2xl hover:bg-green-700 active:scale-95 transition shadow-md touch-none"
+                  >
+                    ➕ Reportar Persona
+                  </button>
+                  <p className="text-xs text-gray-500 text-center mt-2">
+                    Reportes: {reports.length}
+                  </p>
+                </div>
 
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-700 mb-1">
-                      Buscar por cédula:
-                    </p>
+                {/* Search Section */}
+                <div className="px-4 pb-4 space-y-3 border-t border-gray-200">
+                  <p className="text-sm font-bold text-gray-700">🔍 Buscar Persona</p>
+
+                  <div className="space-y-2">
                     <input
                       type="tel"
                       inputMode="numeric"
                       value={searchCedula}
                       onChange={(e) => setSearchCedula(e.target.value)}
-                      placeholder="V-123456789"
-                      className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-base"
+                      placeholder="Buscar por cédula (V-123456789)"
+                      className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 text-base focus:border-blue-500 focus:outline-none"
                       onKeyPress={(e) => {
                         if (e.key === 'Enter') handleSearchMatches()
                       }}
                     />
                     <button
                       onClick={handleSearchMatches}
-                      className="w-full bg-orange-600 text-white py-2 rounded-lg font-bold mt-2 hover:bg-orange-700 transition"
+                      className="w-full bg-orange-600 text-white py-2 rounded-lg font-semibold hover:bg-orange-700 transition text-base"
                     >
-                      🔍 Buscar Cédula
+                      Por Cédula
                     </button>
                   </div>
 
-                  <div>
-                    <p className="text-sm font-semibold text-gray-700 mb-1">
-                      Buscar por nombre:
-                    </p>
+                  <div className="space-y-2">
                     <input
                       type="text"
                       value={searchName}
                       onChange={(e) => setSearchName(e.target.value)}
-                      placeholder="Ej: Juan"
-                      className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-base"
+                      placeholder="Buscar por nombre (Ej: Juan)"
+                      className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 text-base focus:border-blue-500 focus:outline-none"
                       onKeyPress={(e) => {
                         if (e.key === 'Enter') handleSearchByName()
                       }}
                     />
                     <button
                       onClick={handleSearchByName}
-                      className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold mt-2 hover:bg-blue-700 transition"
+                      className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition text-base"
                     >
-                      🔍 Buscar Nombre
+                      Por Nombre
                     </button>
                   </div>
+
+                  <button
+                    onClick={() => fetchReports()}
+                    className="w-full bg-gray-300 text-gray-900 py-2 rounded-lg font-semibold hover:bg-gray-400 transition text-base"
+                  >
+                    🔄 Actualizar
+                  </button>
                 </div>
-
-                <button
-                  onClick={() => setShowForm(true)}
-                  className="w-full bg-green-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-green-700 transition"
-                >
-                  ➕ Reportar Persona
-                </button>
-
-                <button
-                  onClick={() => fetchReports()}
-                  className="w-full bg-gray-400 text-white py-3 rounded-lg font-bold hover:bg-gray-500 transition"
-                >
-                  🔄 Actualizar
-                </button>
               </div>
 
               {/* Reports List */}
