@@ -21,6 +21,11 @@ const Popup = dynamic(
   { ssr: false }
 )
 
+const SetViewOnClick = dynamic(
+  () => import('./MapSetView').then((mod) => mod.SetViewOnClick),
+  { ssr: false }
+)
+
 interface MapViewProps {
   reports: Report[]
   onReportClick?: (report: Report) => void
@@ -38,11 +43,12 @@ export function MapView({ reports, onReportClick }: MapViewProps) {
   }
 
   const center = reports.length > 0 && reports[0]
-    ? ([reports[0].latitude, reports[0].longitude] as const)
-    : ([8.76, -70.19] as const)
+    ? [reports[0].latitude, reports[0].longitude]
+    : [8.76, -70.19]
 
   return (
-    <MapContainer center={center as any} zoom={8} className="w-full h-full" scrollWheelZoom={true}>
+    <MapContainer zoom={8} className="w-full h-full" scrollWheelZoom={true}>
+      <SetViewOnClick center={center} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
