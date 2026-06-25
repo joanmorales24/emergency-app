@@ -1,10 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { MapView } from '@/components/MapView'
+import dynamic from 'next/dynamic'
 import { ReportForm } from '@/components/ReportForm'
 import { Report, supabase } from '@/lib/supabase'
 import { hashCedula } from '@/lib/hash'
+
+const MapView = dynamic(() => import('@/components/MapView').then((mod) => mod.MapView), {
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-gray-200 animate-pulse" />
+})
 
 export default function Home() {
   const [reports, setReports] = useState<Report[]>([])
