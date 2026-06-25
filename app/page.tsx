@@ -20,6 +20,7 @@ export default function Home() {
   const [matches, setMatches] = useState<Report[]>([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [searchName, setSearchName] = useState('')
 
   useEffect(() => {
     fetchReports()
@@ -74,6 +75,29 @@ export default function Home() {
       setMessage({
         type: 'success',
         text: `¡Encontramos ${found.length} reporte(s) para esta persona!`
+      })
+    }
+  }
+
+  const handleSearchByName = () => {
+    if (!searchName.trim()) {
+      setMessage({ type: 'error', text: 'Ingresa un nombre para buscar' })
+      return
+    }
+
+    const found = reports.filter(r =>
+      r.name.toLowerCase().includes(searchName.toLowerCase())
+    )
+
+    if (found.length === 0) {
+      setMessage({ type: 'error', text: 'No hay reportes con ese nombre' })
+      setMatches([])
+    } else {
+      setMatches(found)
+      setShowMatches(true)
+      setMessage({
+        type: 'success',
+        text: `¡Encontramos ${found.length} reporte(s) con ese nombre!`
       })
     }
   }
@@ -283,26 +307,50 @@ export default function Home() {
                   Total de reportes: {reports.length}
                 </h2>
 
-                <div className="space-y-2">
-                  <p className="text-sm font-semibold text-gray-700">
-                    Buscar persona por cédula:
-                  </p>
-                  <input
-                    type="text"
-                    value={searchCedula}
-                    onChange={(e) => setSearchCedula(e.target.value)}
-                    placeholder="V-123456789"
-                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-lg font-bold"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') handleSearchMatches()
-                    }}
-                  />
-                  <button
-                    onClick={handleSearchMatches}
-                    className="w-full bg-orange-600 text-white py-3 rounded-lg font-bold text-lg hover:bg-orange-700 transition"
-                  >
-                    🔍 Buscar Coincidencias
-                  </button>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700 mb-1">
+                      Buscar por cédula:
+                    </p>
+                    <input
+                      type="text"
+                      value={searchCedula}
+                      onChange={(e) => setSearchCedula(e.target.value)}
+                      placeholder="V-123456789"
+                      className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-base"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') handleSearchMatches()
+                      }}
+                    />
+                    <button
+                      onClick={handleSearchMatches}
+                      className="w-full bg-orange-600 text-white py-2 rounded-lg font-bold mt-2 hover:bg-orange-700 transition"
+                    >
+                      🔍 Buscar Cédula
+                    </button>
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700 mb-1">
+                      Buscar por nombre:
+                    </p>
+                    <input
+                      type="text"
+                      value={searchName}
+                      onChange={(e) => setSearchName(e.target.value)}
+                      placeholder="Ej: Juan"
+                      className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-base"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') handleSearchByName()
+                      }}
+                    />
+                    <button
+                      onClick={handleSearchByName}
+                      className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold mt-2 hover:bg-blue-700 transition"
+                    >
+                      🔍 Buscar Nombre
+                    </button>
+                  </div>
                 </div>
 
                 <button
