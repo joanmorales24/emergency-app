@@ -37,7 +37,7 @@ export function MapView({ reports, onReportClick }: MapViewProps) {
     return <div className="w-full h-full bg-gray-200 animate-pulse" />
   }
 
-  const center = reports.length > 0
+  const center = reports.length > 0 && reports[0]
     ? [reports[0].latitude, reports[0].longitude] as [number, number]
     : [8.76, -70.19] as [number, number]
 
