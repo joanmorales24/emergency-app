@@ -31,12 +31,13 @@ export function ReportForm({ onSuccess, onError, onClose }: ReportFormProps) {
   })
 
   const handleLocationSelect = (lat: number, lng: number) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       latitude: lat.toString(),
       longitude: lng.toString(),
-    })
-    setStep('data')
+    }))
+    // Cambiar a paso de datos automáticamente
+    setTimeout(() => setStep('data'), 300)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

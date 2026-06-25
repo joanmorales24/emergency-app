@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -9,6 +9,7 @@ interface LocationPickerProps {
 }
 
 export function LocationPicker({ onLocationSelect }: LocationPickerProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
   const [mounted, setMounted] = useState(false)
@@ -18,32 +19,47 @@ export function LocationPicker({ onLocationSelect }: LocationPickerProps) {
   }, [])
 
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted || !containerRef.current) return
 
-    const container = document.getElementById('location-picker-map')
-    if (!container || mapRef.current) return
+    // Evitar re-inicialización
+    if (mapRef.current) return
 
-    mapRef.current = L.map(container).setView([8.76, -70.19], 7)
+    try {
+      // Inicializar mapa
+      mapRef.current = L.map(containerRef.current).setView([8.76, -70.19], 7)
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-    }).addTo(mapRef.current)
+      // Agregar tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19,
+      }).addTo(mapRef.current)
 
-    mapRef.current.on('click', (e) => {
-      const { lat, lng } = e.latlng
+      // Hacer el mapa interactivo
+      const map = mapRef.current
+      map.on('click', (e: L.LeafletMouseEvent) => {
+        const { lat, lng } = e.latlng
 
-      if (markerRef.current) {
-        mapRef.current!.removeLayer(markerRef.current)
-      }
+        // Remover marker anterior
+        if (markerRef.current) {
+          map.removeLayer(markerRef.current)
+        }
 
-      markerRef.current = L.marker([lat, lng])
-        .addTo(mapRef.current!)
-        .bindPopup(`<p class="font-bold">Ubicación seleccionada</p>`)
-        .openPopup()
+        // Agregar nuevo marker
+        markerRef.current = L.marker([lat, lng], {
+          draggable: false,
+        })
+          .addTo(map)
+          .bindPopup(`<div style="padding: 8px;"><strong>Ubicación</strong><br/>${lat.toFixed(4)}, ${lng.toFixed(4)}</div>`)
+          .openPopup()
 
-      onLocationSelect(lat, lng)
-    })
+        // Llamar callback
+        onLocationSelect(lat, lng)
+      })
+    } catch (error) {
+      console.error('Error inicializando mapa:', error)
+    }
 
+    // Cleanup
     return () => {
       if (mapRef.current) {
         mapRef.current.remove()
@@ -57,13 +73,16 @@ export function LocationPicker({ onLocationSelect }: LocationPickerProps) {
   }
 
   return (
-    <div className="space-y-2">
-      <p className="text-sm text-gray-600 font-semibold">
-        📍 Haz click en el mapa para seleccionar la ubicación
-      </p>
+    <div className="space-y-3">
+      <div className="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
+        <p className="text-sm text-yellow-800 font-semibold">
+          👆 Toca o haz click en el mapa donde está la persona
+        </p>
+      </div>
       <div
-        id="location-picker-map"
-        className="w-full h-64 rounded-lg border-2 border-gray-300"
+        ref={containerRef}
+        className="w-full h-72 rounded-lg border-2 border-gray-300 bg-gray-100"
+        style={{ minHeight: '288px' }}
       />
     </div>
   )
