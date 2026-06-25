@@ -107,7 +107,8 @@ export function ReportForm({ onSuccess, onError }: ReportFormProps) {
       <div>
         <label className="block font-bold mb-2">Cédula</label>
         <input
-          type="text"
+          type="tel"
+          inputMode="numeric"
           name="cedula"
           value={formData.cedula}
           onChange={handleInputChange}

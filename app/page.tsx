@@ -313,7 +313,8 @@ export default function Home() {
                       Buscar por cédula:
                     </p>
                     <input
-                      type="text"
+                      type="tel"
+                      inputMode="numeric"
                       value={searchCedula}
                       onChange={(e) => setSearchCedula(e.target.value)}
                       placeholder="V-123456789"
