@@ -1,8 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { hashCedula } from '@/lib/hash'
 import { supabase } from '@/lib/supabase'
+
+const LocationPicker = dynamic(() => import('./LocationPicker').then((mod) => mod.LocationPicker), {
+  ssr: false,
+  loading: () => <div className="w-full h-64 bg-gray-200 animate-pulse rounded-lg" />
+})
 
 interface ReportFormProps {
   onSuccess?: () => void
@@ -22,21 +28,12 @@ export function ReportForm({ onSuccess, onError }: ReportFormProps) {
     message: '',
   })
 
-  const handleLocationAuto = () => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setFormData({
-            ...formData,
-            latitude: position.coords.latitude.toString(),
-            longitude: position.coords.longitude.toString(),
-          })
-        },
-        (error) => {
-          onError?.('Error al obtener ubicación. Ingresa manualmente.')
-        }
-      )
-    }
+  const handleLocationSelect = (lat: number, lng: number) => {
+    setFormData({
+      ...formData,
+      latitude: lat.toString(),
+      longitude: lng.toString(),
+    })
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -98,17 +95,12 @@ export function ReportForm({ onSuccess, onError }: ReportFormProps) {
 
       {/* Ubicación */}
       <div className="bg-blue-50 border-2 border-blue-400 rounded-lg p-4">
-        <button
-          type="button"
-          onClick={handleLocationAuto}
-          className={`w-full py-3 rounded-lg font-bold text-lg transition ${
-            hasLocation
-              ? 'bg-green-600 text-white hover:bg-green-700'
-              : 'bg-blue-600 text-white hover:bg-blue-700'
-          }`}
-        >
-          {hasLocation ? '✓ Ubicación asignada' : '📍 Asignar mi ubicación'}
-        </button>
+        <LocationPicker onLocationSelect={handleLocationSelect} />
+        {hasLocation && (
+          <div className="mt-3 p-2 bg-green-100 border border-green-400 rounded text-green-700 font-bold text-sm">
+            ✓ Ubicación seleccionada
+          </div>
+        )}
       </div>
 
       {/* Datos básicos */}
